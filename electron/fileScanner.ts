@@ -1,0 +1,104 @@
+import fs from "fs";
+import path from "path";
+
+/** Extension → category label. Lowercase keys for lookup. */
+const EXTENSION_CATEGORY: Record<string, string> = {
+  jpg: "Image",
+  jpeg: "Image",
+  png: "Image",
+  gif: "Image",
+  webp: "Image",
+  svg: "Image",
+  pdf: "Doc",
+  doc: "Doc",
+  docx: "Doc",
+  txt: "Doc",
+  md: "Doc",
+  py: "Code",
+  js: "Code",
+  ts: "Code",
+  tsx: "Code",
+  jsx: "Code",
+  html: "Code",
+  css: "Code",
+  json: "Code",
+  mp3: "Audio",
+  wav: "Audio",
+  mp4: "Video",
+  mov: "Video",
+  zip: "Archive",
+  tar: "Archive",
+  gz: "Archive",
+};
+
+export interface ScannedFile {
+  filePath: string;
+  relativePath: string;
+  extension: string;
+  category: string;
+}
+
+export interface ScanResult {
+  files: ScannedFile[];
+  byCategory: Record<string, ScannedFile[]>;
+  totalCount: number;
+}
+
+function getCategory(ext: string): string {
+  return EXTENSION_CATEGORY[ext.toLowerCase()] ?? "Other";
+}
+
+/**
+ * Recursively scans a directory and categorizes files by extension.
+ * @param dirPath - Absolute path to the directory to scan
+ * @returns ScanResult with flat file list and grouped by category
+ */
+export async function scanDirectory(dirPath: string): Promise<ScanResult> {
+  const files: ScannedFile[] = [];
+  const normalizedRoot = path.resolve(dirPath);
+
+  async function walk(currentDir: string): Promise<void> {
+    let entries: fs.Dirent[];
+    try {
+      entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+        continue;
+      }
+
+      if (!entry.isFile()) continue;
+
+      const ext = path.extname(entry.name).slice(1) || "";
+      const category = getCategory(ext);
+      const relativePath = path.relative(normalizedRoot, fullPath);
+
+      files.push({
+        filePath: fullPath,
+        relativePath,
+        extension: ext ? `.${ext}` : "",
+        category,
+      });
+    }
+  }
+
+  await walk(normalizedRoot);
+
+  const byCategory: Record<string, ScannedFile[]> = {};
+  for (const file of files) {
+    if (!byCategory[file.category]) byCategory[file.category] = [];
+    byCategory[file.category].push(file);
+  }
+
+  return {
+    files,
+    byCategory,
+    totalCount: files.length,
+  };
+}

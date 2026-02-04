@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import path from "path";
+import { scanDirectory } from "./fileScanner";
 
 /**
  * Creates the main application window with macOS-native styling.
@@ -51,4 +52,21 @@ app.on("window-all-closed", () => {
 function registerIpcHandlers(): void {
   ipcMain.handle("app:getPlatform", () => process.platform);
   ipcMain.handle("app:getVersion", () => app.getVersion());
+
+  ipcMain.handle("app:selectDirectory", async () => {
+    const win = BrowserWindow.getFocusedWindow();
+    const result = await dialog.showOpenDialog(win ?? undefined, {
+      properties: ["openDirectory"],
+      title: "Select directory",
+    });
+    if (result.canceled || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
+  });
+
+  ipcMain.handle("app:scanDirectory", async (_event, dirPath: string) => {
+    if (typeof dirPath !== "string" || !dirPath.trim()) {
+      throw new Error("Invalid directory path");
+    }
+    return scanDirectory(dirPath);
+  });
 }

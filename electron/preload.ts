@@ -7,6 +7,10 @@ import { contextBridge, ipcRenderer } from "electron";
 const electronAPI = {
   getPlatform: (): Promise<string> => ipcRenderer.invoke("app:getPlatform"),
   getVersion: (): Promise<string> => ipcRenderer.invoke("app:getVersion"),
+  selectDirectory: (): Promise<string | null> =>
+    ipcRenderer.invoke("app:selectDirectory"),
+  scanDirectory: (dirPath: string) =>
+    ipcRenderer.invoke("app:scanDirectory", dirPath),
 };
 
 contextBridge.exposeInMainWorld("electron", electronAPI);

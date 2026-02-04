@@ -9,6 +9,10 @@ export default {
         secondary: "#121212",
         "border-subtle": "#262626",
       },
+      backdropBlur: {
+        xs: "2px",
+        glass: "12px",
+      },
     },
   },
   plugins: [],

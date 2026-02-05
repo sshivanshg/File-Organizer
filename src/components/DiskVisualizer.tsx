@@ -140,43 +140,43 @@ export function DiskVisualizer({ data, isLoading, onDeepScan }: DiskVisualizerPr
     <div className="flex h-[400px] w-full flex-col gap-2">
       <div className="relative flex-1">
         <SunburstAny
-        data={processed}
-        id="id"
-        value="value"
-        innerRadius={0.45}
-        cornerRadius={4}
-        borderWidth={2}
-        borderColor="#020617"
-        colors={(datum: any) =>
-          colorForCategory((datum.data as DiskVizNode).category) ||
-          NEON_PALETTE[
-            Math.abs(String(datum.id as string).length) %
-              NEON_PALETTE.length
-          ]
-        }
-        animate
-        motionConfig="gentle"
-        enableArcLabels={false}
-        isInteractive
-        tooltip={() => <></>}
-        onMouseEnter={(node: any) => {
-          const raw = node.data as DiskVizNode;
-          setHovered({
-            id: String(node.id),
-            value: node.value,
-            category: raw.category,
-            path: raw.path,
-            color: node.color,
-          });
-        }}
-        onClick={(node: any) => {
-          const raw = node.data as DiskVizNode;
-          if (raw.category === "folder" && raw.path && onDeepScan) {
-            onDeepScan(raw.path);
+          data={processed}
+          id="id"
+          value="value"
+          innerRadius={0.45}
+          cornerRadius={4}
+          borderWidth={2}
+          borderColor="#020617"
+          colors={(datum: any) =>
+            colorForCategory((datum.data as DiskVizNode).category) ||
+            NEON_PALETTE[
+              Math.abs(String(datum.id as string).length) %
+                NEON_PALETTE.length
+            ]
           }
-        }}
-        onMouseLeave={() => setHovered(null)}
-        margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
+          animate
+          motionConfig="gentle"
+          enableArcLabels={false}
+          isInteractive
+          tooltip={() => <></>}
+          onMouseEnter={(node: any) => {
+            const raw = node.data as DiskVizNode;
+            setHovered({
+              id: String(node.id),
+              value: node.value,
+              category: raw.category,
+              path: raw.path,
+              color: node.color,
+            });
+          }}
+          onClick={(node: any) => {
+            const raw = node.data as DiskVizNode;
+            if (raw.category === "folder" && raw.path && onDeepScan) {
+              onDeepScan(raw.path);
+            }
+          }}
+          onMouseLeave={() => setHovered(null)}
+          margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
         />
 
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

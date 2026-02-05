@@ -22,7 +22,13 @@ async function getPathSize(dirPath: string): Promise<number> {
   try {
     stat = await fs.promises.stat(dirPath);
   } catch (err) {
-    if (err && typeof err === "object" && "code" in err && (err as NodeJS.ErrnoException).code === "EACCES") return 0;
+    if (
+      err &&
+      typeof err === "object" &&
+      "code" in err &&
+      (err as NodeJS.ErrnoException).code === "EACCES"
+    )
+      return 0;
     return 0;
   }
   if (!stat.isDirectory()) return stat.size;
@@ -31,7 +37,13 @@ async function getPathSize(dirPath: string): Promise<number> {
   try {
     entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
   } catch (err) {
-    if (err && typeof err === "object" && "code" in err && (err as NodeJS.ErrnoException).code === "EACCES") return 0;
+    if (
+      err &&
+      typeof err === "object" &&
+      "code" in err &&
+      (err as NodeJS.ErrnoException).code === "EACCES"
+    )
+      return 0;
     return 0;
   }
   let total = 0;
@@ -71,7 +83,12 @@ export async function scanDirectoryForViz(
     try {
       stat = await fs.promises.stat(currentPath);
     } catch (err) {
-      if (err && typeof err === "object" && "code" in err && (err as NodeJS.ErrnoException).code === "EACCES")
+      if (
+        err &&
+        typeof err === "object" &&
+        "code" in err &&
+        (err as NodeJS.ErrnoException).code === "EACCES"
+      )
         return { id: name, value: 0 };
       return { id: name, value: 0 };
     }
@@ -94,7 +111,12 @@ export async function scanDirectoryForViz(
     try {
       entries = await fs.promises.readdir(currentPath, { withFileTypes: true });
     } catch (err) {
-      if (err && typeof err === "object" && "code" in err && (err as NodeJS.ErrnoException).code === "EACCES")
+      if (
+        err &&
+        typeof err === "object" &&
+        "code" in err &&
+        (err as NodeJS.ErrnoException).code === "EACCES"
+      )
         return { id: name, value: 0 };
       return { id: name, value: 0 };
     }
@@ -147,7 +169,7 @@ export async function scanDirectoryForViz(
         category: "other",
       });
     }
-
+ 
     const value = children.reduce((sum, c) => sum + c.value, 0);
     return {
       id: name,

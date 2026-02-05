@@ -1,14 +1,4 @@
-import {
-  Home,
-  Monitor,
-  Download,
-  Music,
-  Folder,
-  Star,
-  FolderGit2,
-  Book,
-  HardDrive,
-} from "lucide-react";
+import { Home, Monitor, Download, Music } from "lucide-react";
 import {
   useFileStore,
   type SidebarFavorite,
@@ -28,7 +18,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-const FAVORITE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const FAVORITE_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   Home,
   Desktop: Monitor,
   Downloads: Download,
@@ -139,7 +132,6 @@ export function Sidebar() {
         <div>
           <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
             <span>Favorites</span>
-            <Star className="h-3 w-3 text-white/40" />
           </div>
           <SortableContext
             items={sidebarFavorites.map((f) => f.id)}
@@ -161,12 +153,11 @@ export function Sidebar() {
         <div>
           <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
             <span>Locations</span>
-            <HardDrive className="h-3 w-3 text-white/40" />
           </div>
           <div className="flex flex-col gap-0.5">
             {favorites.map((item) => {
               const isActive = currentPath === item.path;
-              const Icon = FAVORITE_ICONS[item.name] ?? Folder;
+              const Icon = FAVORITE_ICONS[item.name] ?? Home;
               return (
                 <button
                   key={item.path}

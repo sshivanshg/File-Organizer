@@ -65,7 +65,6 @@ function App() {
     navigateTo(path);
     setAccessState((s) => ({ ...s, hasAccess: true }));
   };
-
   if (favorites.length === 0) {
     return (
       <Layout sidebarContent={<Sidebar />}>

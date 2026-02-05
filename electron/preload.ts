@@ -23,8 +23,7 @@ const electronAPI = {
     ipcRenderer.invoke("app:listDirectory", dirPath),
   getParentPath: (dirPath: string) =>
     ipcRenderer.invoke("app:getParentPath", dirPath),
-  openPath: (filePath: string) =>
-    ipcRenderer.invoke("app:openPath", filePath),
+  openPath: (filePath: string) => ipcRenderer.invoke("app:openPath", filePath),
   readFilePreview: (filePath: string, maxBytes?: number) =>
     ipcRenderer.invoke("app:readFilePreview", filePath, maxBytes ?? 8192),
 };

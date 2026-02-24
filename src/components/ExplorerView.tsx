@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   List as ListIcon,
   ArrowUpNarrowWide,
+  SearchX,
 } from "lucide-react";
 import { useFileStore } from "../stores/useFileStore";
 import type { DirEntry } from "../types/dirEntry";
@@ -454,6 +455,9 @@ export function ExplorerView({ searchQuery }: ExplorerViewProps) {
       : sortConfig.by === "date"
         ? "date-desc"
         : "size-desc";
+  const noEntriesInFolder = entries.length === 0;
+  const noSearchResults =
+    entries.length > 0 && searchQuery.trim().length > 0 && filtered.length === 0;
 
   return (
     <div
@@ -488,6 +492,9 @@ export function ExplorerView({ searchQuery }: ExplorerViewProps) {
           </button>
         </div>
         <div className="flex items-center gap-1.5">
+          <span className="mr-2 hidden rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-white/60 sm:inline">
+            {sorted.length} item{sorted.length === 1 ? "" : "s"}
+          </span>
           <ArrowUpNarrowWide className="h-3.5 w-3.5 text-white/50" />
           <select
             value={sortValue}
@@ -504,7 +511,22 @@ export function ExplorerView({ searchQuery }: ExplorerViewProps) {
           </select>
         </div>
       </div>
-      {viewMode === "grid" ? renderGrid() : renderList()}
+      {(noEntriesInFolder || noSearchResults) && (
+        <div className="flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-border-subtle bg-secondary/70 px-6 text-center backdrop-blur-glass">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5">
+            <SearchX className="h-6 w-6 text-white/60" />
+          </div>
+          <h3 className="text-sm font-medium text-white">
+            {noSearchResults ? "No matching files" : "This folder is empty"}
+          </h3>
+          <p className="mt-1 max-w-md text-xs text-white/60">
+            {noSearchResults
+              ? `Try a different search keyword. Current filter: "${searchQuery.trim()}".`
+              : "Try navigating to another directory or add files to this folder."}
+          </p>
+        </div>
+      )}
+      {!noEntriesInFolder && !noSearchResults && (viewMode === "grid" ? renderGrid() : renderList())}
       {contextMenu.open && contextMenu.entry && (
         <div
           className="fixed z-50 min-w-[140px] rounded-xl border border-border-subtle bg-secondary/90 py-1 text-xs text-white shadow-lg backdrop-blur-md"

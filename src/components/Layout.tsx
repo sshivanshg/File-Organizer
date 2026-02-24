@@ -11,17 +11,17 @@ interface LayoutProps {
  */
 export function Layout({ children, sidebarContent }: LayoutProps) {
   return (
-    <div className="flex h-screen w-full bg-main text-white">
-      <aside className="flex w-[250px] flex-col border-r border-border-subtle bg-secondary">
+    <div className="flex h-screen w-full bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.07),transparent_35%),#0a0a0a] text-white">
+      <aside className="flex w-[260px] flex-col border-r border-white/10 bg-secondary/85 backdrop-blur-glass">
         <div
           className="h-8 shrink-0 px-4"
           style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
         />
-        <div className="flex-1 overflow-y-auto px-4 pb-4 [-webkit-app-region:no-drag]">
+        <div className="flex-1 overflow-y-auto px-4 pb-4 pt-1 [-webkit-app-region:no-drag]">
           {sidebarContent}
         </div>
       </aside>
-      <main className="flex-1 overflow-auto bg-main">{children}</main>
+      <main className="flex-1 overflow-auto bg-main/60">{children}</main>
     </div>
   );
 }

@@ -60,27 +60,32 @@ export function SetupScreen({
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center p-8">
-      <div className={`flex max-w-sm flex-col items-center gap-5 px-7 py-8 ${GLASS}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.07),transparent_35%),#0a0a0a]">
+      <div
+        className="absolute top-0 left-0 right-0 h-8"
+        style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+      />
+
+      <div className={`flex w-full max-w-xs flex-col items-center gap-5 px-7 py-8 ${GLASS}`}>
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15">
           <ShieldAlert className="h-6 w-6 text-amber-300/90" />
         </div>
         <div className="text-center">
           <h1 className="text-lg font-semibold text-white">Permission Required</h1>
-          <p className="mt-2 text-sm text-white/70">
-            Please allow Full Disk Access in System Settings to use Nexus.
+          <p className="mt-2 text-sm leading-relaxed text-white/60">
+            Allow Full Disk Access in System Settings so Nexus can scan your files.
           </p>
           {checkingAccess && (
-            <p className="mt-2 text-xs text-white/50">Checking current permission status…</p>
+            <p className="mt-2 text-xs text-white/40">Checking permission…</p>
           )}
         </div>
-        <div className="flex w-full flex-col gap-2.5">
+        <div className="flex w-full flex-col gap-2">
           <button
             type="button"
             onClick={handleOpenFullDiskAccess}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-amber-400/30 bg-amber-500/12 px-6 py-3 text-sm font-medium text-amber-200 transition hover:bg-amber-500/18 [-webkit-app-region:no-drag]"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-500/10 px-5 py-2.5 text-sm font-medium text-amber-200 transition-all duration-200 hover:bg-amber-500/18 hover:-translate-y-px [-webkit-app-region:no-drag]"
           >
-            Open Full Disk Access
+            Open System Settings
           </button>
           <button
             type="button"
@@ -92,7 +97,7 @@ export function SetupScreen({
               void handleRetryAccess();
             }}
             disabled={loading || checkingAccess}
-            className="rounded-2xl border border-border-subtle bg-white/8 px-6 py-3 text-sm font-medium text-white transition hover:bg-white/12 disabled:opacity-50 [-webkit-app-region:no-drag]"
+            className="rounded-2xl border border-white/10 bg-white/6 px-5 py-2.5 text-sm font-medium text-white/80 transition-all duration-200 hover:bg-white/10 hover:-translate-y-px disabled:opacity-40 [-webkit-app-region:no-drag]"
           >
             {loading || checkingAccess
               ? "Checking…"
@@ -102,7 +107,7 @@ export function SetupScreen({
           </button>
         </div>
         {statusMessage && (
-          <p className="text-center text-[11px] text-amber-200/90">{statusMessage}</p>
+          <p className="text-center text-[11px] leading-snug text-amber-200/80">{statusMessage}</p>
         )}
       </div>
     </div>

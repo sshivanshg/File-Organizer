@@ -424,17 +424,15 @@ function App() {
 
   if (permissionGateOpen || (accessState.checked && !accessState.hasAccess)) {
     return (
-      <Layout sidebarContent={null}>
-        <SetupScreen
-          onGranted={(path) => {
-            handleGrantedAccess(path);
-            setPermissionGateOpen(false);
-          }}
-          onContinue={() => setPermissionGateOpen(false)}
-          canContinue={accessState.checked && accessState.hasAccess}
-          checkingAccess={!accessState.checked}
-        />
-      </Layout>
+      <SetupScreen
+        onGranted={(path) => {
+          handleGrantedAccess(path);
+          setPermissionGateOpen(false);
+        }}
+        onContinue={() => setPermissionGateOpen(false)}
+        canContinue={accessState.checked && accessState.hasAccess}
+        checkingAccess={!accessState.checked}
+      />
     );
   }
 

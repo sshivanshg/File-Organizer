@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, ChevronUp, Gauge, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronUp, Search, X } from "lucide-react";
 import { useFileStore } from "../stores/useFileStore";
 
 const GLASS_BTN =
@@ -7,8 +7,6 @@ const GLASS_BTN =
 interface ControlBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  performanceMode: boolean;
-  onTogglePerformanceMode: () => void;
 }
 
 /**
@@ -17,8 +15,6 @@ interface ControlBarProps {
 export function ControlBar({
   searchQuery,
   onSearchChange,
-  performanceMode,
-  onTogglePerformanceMode,
 }: ControlBarProps) {
   const {
     currentPath,
@@ -133,19 +129,6 @@ export function ControlBar({
           </button>
         )}
       </div>
-      <button
-        type="button"
-        onClick={onTogglePerformanceMode}
-        className={`inline-flex items-center gap-1.5 rounded-2xl border px-2.5 py-1.5 text-xs font-medium transition duration-200 hover:-translate-y-[1px] [-webkit-app-region:no-drag] ${
-          performanceMode
-            ? "border-cyan-300/40 bg-cyan-500/20 text-cyan-100 hover:bg-cyan-500/30"
-            : "border-border-subtle bg-secondary/70 text-white/80 hover:bg-white/10"
-        }`}
-        title="Toggle Performance Mode"
-      >
-        <Gauge className="h-3.5 w-3.5" />
-        {performanceMode ? "Perf: On" : "Perf: Off"}
-      </button>
     </div>
   );
 }

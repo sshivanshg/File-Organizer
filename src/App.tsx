@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ScanResult } from "./types/fileScanner";
 import { Layout } from "./components/Layout";
 import { Sidebar } from "./components/Sidebar";
@@ -10,17 +10,7 @@ import { Dashboard } from "./components/Dashboard";
 import { BinView } from "./components/BinView";
 import { useFileStore } from "./stores/useFileStore";
 import type { DiskVizNode } from "./types/diskViz";
-import {
-  Activity,
-  AlertTriangle,
-  ChevronDown,
-  ChevronUp,
-  Gauge,
-  HelpCircle,
-  ImageIcon,
-  Loader2,
-  X,
-} from "lucide-react";
+import { HelpCircle, Loader2, X } from "lucide-react";
 
 const GLASS =
   "glass-surface rounded-3xl border border-border-subtle bg-secondary/80 backdrop-blur-glass";
@@ -31,8 +21,6 @@ function App() {
     loadFavorites,
     favorites,
     navigateTo,
-    performanceMode,
-    setPerformanceMode,
   } = useFileStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"explorer" | "dashboard">("explorer");
@@ -44,7 +32,6 @@ function App() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [tourOpen, setTourOpen] = useState(false);
   const [permissionGateOpen, setPermissionGateOpen] = useState(true);
-  const [perfPanelCollapsed, setPerfPanelCollapsed] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [tourTargetRect, setTourTargetRect] = useState<DOMRect | null>(null);
   const helpButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -172,24 +159,6 @@ function App() {
     checked: boolean;
     hasAccess: boolean;
   }>({ checked: false, hasAccess: false });
-  const [perfStats, setPerfStats] = useState<{
-    vizMs: number | null;
-    dashboardMs: number | null;
-    vizRunning: boolean;
-    dashboardRunning: boolean;
-    thumbnailLoaded: number;
-    thumbnailTotal: number;
-    thumbnailRunning: boolean;
-  }>({
-    vizMs: null,
-    dashboardMs: null,
-    vizRunning: false,
-    dashboardRunning: false,
-    thumbnailLoaded: 0,
-    thumbnailTotal: 0,
-    thumbnailRunning: false,
-  });
-
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
@@ -215,140 +184,50 @@ function App() {
   useEffect(() => {
     if (!currentPath || !window.electron?.scanDirectoryForViz) return;
     let cancelled = false;
-    const delayMs = performanceMode ? 320 : 80;
-    const scanDepth = performanceMode ? 1 : 2;
 
     const timer = window.setTimeout(() => {
-      const vizStart = performance.now();
       setVizLoading(true);
       setVizData(null);
-      setPerfStats((s) => ({ ...s, vizRunning: true }));
       window.electron
-        .scanDirectoryForViz(currentPath, scanDepth)
-        .then((data) => {
-          if (!cancelled) setVizData(data);
-        })
-        .catch(() => {
-          if (!cancelled) setVizData(null);
-        })
-        .finally(() => {
-          if (cancelled) return;
-          setVizLoading(false);
-          setPerfStats((s) => ({
-            ...s,
-            vizRunning: false,
-            vizMs: Math.round(performance.now() - vizStart),
-          }));
-        });
+        .scanDirectoryForViz(currentPath, 2)
+        .then((data) => { if (!cancelled) setVizData(data); })
+        .catch(() => { if (!cancelled) setVizData(null); })
+        .finally(() => { if (!cancelled) setVizLoading(false); });
 
       if (activeTab === "dashboard" && window.electron?.scanDirectory) {
-        const dashboardStart = performance.now();
         setScanLoading(true);
-        setPerfStats((s) => ({ ...s, dashboardRunning: true }));
         window.electron
-          .scanDirectory(currentPath, scanDepth)
-          .then((result) => {
-            if (!cancelled) setScanResult(result);
-          })
-          .catch(() => {
-            if (!cancelled) setScanResult(null);
-          })
-          .finally(() => {
-            if (cancelled) return;
-            setScanLoading(false);
-            setPerfStats((s) => ({
-              ...s,
-              dashboardRunning: false,
-              dashboardMs: Math.round(performance.now() - dashboardStart),
-            }));
-          });
+          .scanDirectory(currentPath, 2)
+          .then((result) => { if (!cancelled) setScanResult(result); })
+          .catch(() => { if (!cancelled) setScanResult(null); })
+          .finally(() => { if (!cancelled) setScanLoading(false); });
       }
-    }, delayMs);
+    }, 80);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [currentPath, activeTab, performanceMode]);
+  }, [currentPath, activeTab]);
 
   const handleDeepScan = (path: string) => {
     if (!window.electron?.scanDirectoryForViz) return;
     const api = window.electron;
-    const vizStart = performance.now();
     setVizLoading(true);
     setVizData(null);
-    setPerfStats((s) => ({ ...s, vizRunning: true }));
-    const task = performanceMode
-      ? api.scanDirectoryForViz(path, 3)
-      : api.scanDirectoryForVizDeep
-        ? api.scanDirectoryForVizDeep(path)
-        : api.scanDirectoryForViz(path, 6);
+    const task = api.scanDirectoryForVizDeep
+      ? api.scanDirectoryForVizDeep(path)
+      : api.scanDirectoryForViz(path, 6);
     task
       .then(setVizData)
       .catch(() => setVizData(null))
-      .finally(() => {
-        setVizLoading(false);
-        setPerfStats((s) => ({
-          ...s,
-          vizRunning: false,
-          vizMs: Math.round(performance.now() - vizStart),
-        }));
-      });
+      .finally(() => setVizLoading(false));
   };
-
-  const handleThumbnailProgress = useCallback(
-    (progress: { loaded: number; total: number; running: boolean }) => {
-      setPerfStats((s) => {
-        if (
-          s.thumbnailLoaded === progress.loaded &&
-          s.thumbnailTotal === progress.total &&
-          s.thumbnailRunning === progress.running
-        ) {
-          return s;
-        }
-        return {
-          ...s,
-          thumbnailLoaded: progress.loaded,
-          thumbnailTotal: progress.total,
-          thumbnailRunning: progress.running,
-        };
-      });
-    },
-    []
-  );
 
   const handleGrantedAccess = (path: string) => {
     navigateTo(path);
     setAccessState((s) => ({ ...s, hasAccess: true }));
   };
-
-  const thumbnailLoaded = Math.min(
-    perfStats.thumbnailLoaded,
-    perfStats.thumbnailTotal
-  );
-  const thumbnailPercent =
-    perfStats.thumbnailTotal > 0
-      ? Math.round((thumbnailLoaded / perfStats.thumbnailTotal) * 100)
-      : 0;
-  const loadLevel: "normal" | "medium" | "high" = (() => {
-    if (
-      perfStats.vizRunning ||
-      perfStats.dashboardRunning ||
-      (perfStats.thumbnailRunning && perfStats.thumbnailTotal > 180) ||
-      (perfStats.vizMs ?? 0) > 1400 ||
-      (perfStats.dashboardMs ?? 0) > 1700
-    ) {
-      return "high";
-    }
-    if (
-      (perfStats.vizMs ?? 0) > 850 ||
-      (perfStats.dashboardMs ?? 0) > 1100 ||
-      (perfStats.thumbnailRunning && perfStats.thumbnailTotal > 60)
-    ) {
-      return "medium";
-    }
-    return "normal";
-  })();
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -447,8 +326,6 @@ function App() {
           <ControlBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            performanceMode={performanceMode}
-            onTogglePerformanceMode={() => setPerformanceMode(!performanceMode)}
           />
 
           {/* Navigation Tabs */}
@@ -471,149 +348,12 @@ function App() {
               Auto Organize Summary
             </button>
           </div>
-          <div className="glass-surface rounded-3xl border border-border-subtle bg-secondary/70 p-3 backdrop-blur-glass">
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 ${
-                    loadLevel === "high"
-                      ? "border-red-400/40 bg-red-500/20 text-red-200"
-                      : loadLevel === "medium"
-                        ? "border-amber-400/40 bg-amber-500/20 text-amber-200"
-                        : "border-emerald-400/30 bg-emerald-500/15 text-emerald-100"
-                  }`}
-                >
-                  <AlertTriangle className="h-3 w-3" />
-                  Load {loadLevel}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setPerfPanelCollapsed((v) => !v)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-white/70 transition hover:bg-white/10 hover:text-white"
-                >
-                  {perfPanelCollapsed ? (
-                    <>
-                      <ChevronDown className="h-3.5 w-3.5" />
-                      Expand
-                    </>
-                  ) : (
-                    <>
-                      <ChevronUp className="h-3.5 w-3.5" />
-                      Minimize
-                    </>
-                  )}
-                </button>
-              </div>
-              <span
-                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 ${
-                  performanceMode
-                    ? "border-cyan-300/40 bg-cyan-500/15 text-cyan-100"
-                    : "border-white/10 bg-white/5 text-white/70"
-                }`}
-              >
-                <Gauge className="h-3 w-3" />
-                Performance Mode {performanceMode ? "On" : "Off"}
-              </span>
-              <span className="text-white/45">
-                {performanceMode
-                  ? "Balanced for smoother navigation on large folders."
-                  : "Full-detail scanning and aggressive thumbnails."}
-              </span>
-            </div>
-
-            {!perfPanelCollapsed && (
-            <div className="grid gap-2 text-[11px] text-white/70 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1">
-                    <Activity className="h-3 w-3 text-cyan-300" />
-                    Viz scan
-                  </span>
-                  <span className="text-white/60">
-                    {perfStats.vizRunning
-                      ? "running…"
-                      : perfStats.vizMs != null
-                        ? `${perfStats.vizMs} ms`
-                        : "—"}
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white/10">
-                  <div
-                    className={`h-1.5 rounded-full transition-all ${
-                      perfStats.vizRunning ? "w-3/4 animate-pulse bg-cyan-400" : "w-full bg-cyan-400/40"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1">
-                    <Activity className="h-3 w-3 text-blue-300" />
-                    Summary scan
-                  </span>
-                  <span className="text-white/60">
-                    {activeTab !== "dashboard"
-                      ? "inactive"
-                      : perfStats.dashboardRunning
-                        ? "running…"
-                        : perfStats.dashboardMs != null
-                          ? `${perfStats.dashboardMs} ms`
-                          : "—"}
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white/10">
-                  <div
-                    className={`h-1.5 rounded-full transition-all ${
-                      activeTab === "dashboard" && perfStats.dashboardRunning
-                        ? "w-3/4 animate-pulse bg-blue-400"
-                        : "w-full bg-blue-400/30"
-                    }`}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2">
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1">
-                    <ImageIcon className="h-3 w-3 text-violet-300" />
-                    Thumbnails
-                  </span>
-                  <span className="text-white/60">
-                    {perfStats.thumbnailTotal > 0
-                      ? `${thumbnailLoaded}/${perfStats.thumbnailTotal}`
-                      : "—"}
-                  </span>
-                </div>
-                <div className="h-1.5 rounded-full bg-white/10">
-                  <div
-                    className={`h-1.5 rounded-full transition-all ${
-                      perfStats.thumbnailRunning
-                        ? "bg-violet-400"
-                        : "bg-violet-400/40"
-                    }`}
-                    style={{
-                      width:
-                        perfStats.thumbnailTotal > 0
-                          ? `${Math.max(6, thumbnailPercent)}%`
-                          : "0%",
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-            )}
-          </div>
 
           <div className="flex min-h-0 flex-1 gap-4">
             {activeTab === "explorer" ? (
               <>
                 <div className="flex min-w-0 flex-[7] flex-col overflow-auto">
-                  <ExplorerView
-                    searchQuery={searchQuery}
-                    performanceMode={performanceMode}
-                    onThumbnailProgress={handleThumbnailProgress}
-                  />
+                  <ExplorerView searchQuery={searchQuery} />
                 </div>
                 <div className="flex min-w-0 flex-[3] flex-col overflow-hidden">
                   <div className={`flex min-h-[360px] flex-col ${GLASS} p-4`}>

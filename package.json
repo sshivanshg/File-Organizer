@@ -37,7 +37,8 @@
       "dist/**/*",
       "dist-electron/**/*",
       "package.json"
-    ]
+    ],
+    "afterPack": "./scripts/afterPack.js"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",

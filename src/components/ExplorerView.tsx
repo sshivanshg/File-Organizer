@@ -65,12 +65,6 @@ function getFileIcon(name: string): React.ComponentType<{ className?: string }> 
 
 interface ExplorerViewProps {
   searchQuery: string;
-  performanceMode?: boolean;
-  onThumbnailProgress?: (progress: {
-    loaded: number;
-    total: number;
-    running: boolean;
-  }) => void;
 }
 
 interface ContextMenuState {
@@ -86,8 +80,6 @@ interface ContextMenuState {
  */
 export function ExplorerView({
   searchQuery,
-  performanceMode = false,
-  onThumbnailProgress,
 }: ExplorerViewProps) {
   const {
     currentPath,
@@ -143,8 +135,7 @@ export function ExplorerView({
   useEffect(() => {
     setThumbnailByPath({});
     requestedThumbnailPaths.current.clear();
-    onThumbnailProgress?.({ loaded: 0, total: 0, running: false });
-  }, [currentPath, onThumbnailProgress]);
+  }, [currentPath]);
 
   const handleDelete = async (entry: DirEntry) => {
     const ok = await window.electron?.deleteFile?.(entry.path);
@@ -182,100 +173,40 @@ export function ExplorerView({
     return IMAGE_EXTENSIONS.includes(ext);
   };
 
-  const canCreateThumbnail = (entry: DirEntry) => {
-    if (entry.isDirectory) return false;
-    if (!performanceMode) return true;
-    // In Performance Mode, restrict expensive thumbnail generation to media-like files.
-    return isPreviewable(entry.name);
-  };
-
-  const thumbnailEligibleTotal = sorted.filter(canCreateThumbnail).length;
-
   useEffect(() => {
     const api = window.electron?.getFileThumbnail;
-    if (!api || sorted.length === 0) {
-      onThumbnailProgress?.({ loaded: 0, total: 0, running: false });
-      return;
-    }
+    if (!api || sorted.length === 0) return;
 
     const pending = sorted.filter(
       (entry) =>
-        canCreateThumbnail(entry) &&
+        !entry.isDirectory &&
         !requestedThumbnailPaths.current.has(entry.path)
     );
-    if (pending.length === 0) {
-      onThumbnailProgress?.({
-        loaded: Math.min(requestedThumbnailPaths.current.size, thumbnailEligibleTotal),
-        total: thumbnailEligibleTotal,
-        running: false,
-      });
-      return;
-    }
+    if (pending.length === 0) return;
 
-    const queueLimit = performanceMode ? 90 : 250;
-    const queue = pending.slice(0, queueLimit);
+    const queue = pending.slice(0, 250);
     for (const item of queue) requestedThumbnailPaths.current.add(item.path);
 
     let cancelled = false;
-    let completed = 0;
-    const workers = Math.min(performanceMode ? 2 : 6, queue.length);
-    const thumbSize = performanceMode ? 72 : 96;
-
-    onThumbnailProgress?.({
-      loaded: Math.min(
-        requestedThumbnailPaths.current.size - queue.length,
-        thumbnailEligibleTotal
-      ),
-      total: thumbnailEligibleTotal,
-      running: true,
-    });
+    const workers = Math.min(6, queue.length);
 
     const runWorker = async () => {
       while (!cancelled && queue.length > 0) {
         const entry = queue.shift();
         if (!entry) return;
-        const thumbnail = await api(entry.path, thumbSize).catch(() => null);
+        const thumbnail = await api(entry.path, 96).catch(() => null);
         if (cancelled) return;
         setThumbnailByPath((prev) => {
           if (prev[entry.path] === thumbnail) return prev;
           return { ...prev, [entry.path]: thumbnail };
         });
-        completed += 1;
-        onThumbnailProgress?.({
-          loaded: Math.min(
-            requestedThumbnailPaths.current.size - (queue.length - completed),
-            thumbnailEligibleTotal
-          ),
-          total: thumbnailEligibleTotal,
-          running: queue.length - completed > 0,
-        });
       }
     };
 
-    const tasks = Array.from({ length: workers }, () => runWorker());
-    void Promise.all(tasks).finally(() => {
-      if (cancelled) return;
-      onThumbnailProgress?.({
-        loaded: Math.min(requestedThumbnailPaths.current.size, thumbnailEligibleTotal),
-        total: thumbnailEligibleTotal,
-        running: false,
-      });
-    });
+    void Promise.all(Array.from({ length: workers }, () => runWorker()));
 
-    return () => {
-      cancelled = true;
-      onThumbnailProgress?.({
-        loaded: Math.min(requestedThumbnailPaths.current.size, thumbnailEligibleTotal),
-        total: thumbnailEligibleTotal,
-        running: false,
-      });
-    };
-  }, [
-    sorted,
-    performanceMode,
-    onThumbnailProgress,
-    thumbnailEligibleTotal,
-  ]);
+    return () => { cancelled = true; };
+  }, [sorted]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

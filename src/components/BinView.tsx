@@ -37,6 +37,10 @@ export function BinView() {
   }, [fetchItems]);
 
   const handleRestore = async (item: TrashItem) => {
+    if (item.source === "system") {
+      addToast("Restore is not available for system trash items.", "error");
+      return;
+    }
     const ok = await window.electron?.restoreFromTrash?.(item.id);
     if (ok) {
       addToast("Restored \"" + item.name + "\"", "success");
@@ -103,7 +107,7 @@ export function BinView() {
 
   if (items.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+      <div className="glass-surface flex h-full flex-col items-center justify-center rounded-3xl p-8 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white/5 mb-4">
           <Trash2 className="h-8 w-8 text-white/40" />
         </div>
@@ -122,7 +126,7 @@ export function BinView() {
   return (
     <div data-tour="bin-root" className="flex h-full flex-col gap-4 overflow-auto">
       {/* Header */}
-      <div data-tour="bin-header" className="flex items-center gap-3 px-6 pt-6">
+      <div data-tour="bin-header" className="glass-surface rounded-3xl flex items-center gap-3 px-6 py-4">
         <Trash2 className="h-5 w-5 text-red-400/70" />
         <h1 className="text-xl font-semibold text-white">Bin</h1>
         <span className="text-xs text-white/50 ml-1">
@@ -131,7 +135,7 @@ export function BinView() {
         <button
           type="button"
           onClick={() => setEmptyDialog({ open: true, isLoading: false })}
-          className="ml-auto flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:bg-red-500/20 [-webkit-app-region:no-drag]"
+          className="ml-auto flex items-center gap-1.5 rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 transition duration-200 hover:bg-red-500/20 hover:-translate-y-[1px] [-webkit-app-region:no-drag]"
         >
           <Trash2 className="h-3 w-3" />
           Empty Bin
@@ -146,7 +150,7 @@ export function BinView() {
             return (
             <div
               key={item.id}
-              className="group flex items-center gap-3 rounded-xl border border-border-subtle bg-secondary/40 p-3 hover:bg-secondary/60 transition"
+              className="glass-hover group flex items-center gap-3 rounded-3xl border border-border-subtle bg-secondary/50 p-3.5 hover:bg-secondary/70 transition duration-200"
             >
               {/* Icon + info */}
               <div className="flex flex-1 items-center gap-3 min-w-0">
@@ -161,9 +165,16 @@ export function BinView() {
                   <p className="text-sm font-medium text-white truncate">
                     {item.name}
                   </p>
-                  <p className="text-xs text-white/40 truncate">
-                    {item.originalPath}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-white/40 truncate">
+                      {item.originalPath}
+                    </p>
+                    {item.source === "system" && (
+                      <span className="shrink-0 rounded-full border border-amber-400/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-300">
+                        System
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -180,8 +191,9 @@ export function BinView() {
                 <button
                   type="button"
                   onClick={() => handleRestore(item)}
-                  title="Restore"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:text-green-400 hover:bg-green-500/10 transition [-webkit-app-region:no-drag]"
+                  title={item.source === "system" ? "Restore not available for system trash items" : "Restore"}
+                  disabled={item.source === "system"}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:text-green-400 hover:bg-green-500/10 transition disabled:cursor-not-allowed disabled:opacity-30 [-webkit-app-region:no-drag]"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </button>

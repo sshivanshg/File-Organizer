@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 const GLASS =
-  "rounded-2xl border border-border-subtle bg-secondary/80 backdrop-blur-glass";
+  "glass-surface rounded-3xl border border-border-subtle bg-secondary/80 backdrop-blur-glass";
 
 function App() {
   const {
@@ -439,24 +439,24 @@ function App() {
           {/* Navigation Tabs */}
           <div
             data-tour="main-tabs"
-            className="flex items-center gap-1 rounded-xl border border-border-subtle bg-secondary/80 p-1 backdrop-blur-glass w-fit"
+            className="glass-surface flex items-center gap-1 rounded-2xl border border-border-subtle bg-secondary/80 p-1.5 backdrop-blur-glass w-fit"
           >
             <button
               onClick={() => setActiveTab("explorer")}
-              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "explorer" ? "bg-white/15 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-white/5"
+              className={`px-4 py-1.5 text-sm font-medium rounded-xl transition-all duration-200 ${activeTab === "explorer" ? "bg-white/15 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
             >
               Files
             </button>
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${activeTab === "dashboard" ? "bg-white/15 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-white/5"
+              className={`px-4 py-1.5 text-sm font-medium rounded-xl transition-all duration-200 ${activeTab === "dashboard" ? "bg-white/15 text-white shadow-sm" : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
             >
               Auto Organize Summary
             </button>
           </div>
-          <div className="rounded-2xl border border-border-subtle bg-secondary/70 p-3 backdrop-blur-glass">
+          <div className="glass-surface rounded-3xl border border-border-subtle bg-secondary/70 p-3 backdrop-blur-glass">
             <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-[11px]">
               <div className="flex items-center gap-2">
                 <span
@@ -508,7 +508,7 @@ function App() {
 
             {!perfPanelCollapsed && (
             <div className="grid gap-2 text-[11px] text-white/70 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-2">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2">
                 <div className="mb-1 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1">
                     <Activity className="h-3 w-3 text-cyan-300" />
@@ -531,7 +531,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-2">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2">
                 <div className="mb-1 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1">
                     <Activity className="h-3 w-3 text-blue-300" />
@@ -558,7 +558,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-2">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-2">
                 <div className="mb-1 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1">
                     <ImageIcon className="h-3 w-3 text-violet-300" />
@@ -645,7 +645,7 @@ function App() {
         ref={helpButtonRef}
         type="button"
         onClick={() => setHelpOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-cyan-300/30 bg-cyan-500/20 text-cyan-100 shadow-[0_8px_24px_rgba(6,182,212,0.35)] backdrop-blur-glass transition hover:scale-105 hover:bg-cyan-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+        className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-cyan-300/30 bg-cyan-500/20 text-cyan-100 shadow-[0_8px_24px_rgba(6,182,212,0.35)] backdrop-blur-glass transition duration-200 hover:scale-105 hover:bg-cyan-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
         title="How to use this app"
         aria-label="Open help"
       >
@@ -658,7 +658,7 @@ function App() {
           onClick={() => setHelpOpen(false)}
         >
           <div
-            className="w-full max-w-2xl rounded-2xl border border-border-subtle bg-secondary/95 p-5 shadow-2xl backdrop-blur-glass"
+            className="glass-surface w-full max-w-2xl rounded-3xl border border-border-subtle bg-secondary/95 p-5 shadow-2xl backdrop-blur-glass"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between gap-4">
@@ -679,7 +679,7 @@ function App() {
             </div>
 
             <div className="grid gap-3 text-sm text-white/80 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
                 <h3 className="mb-1 font-medium text-white">What you can do</h3>
                 <ul className="space-y-1 text-white/70">
                   <li>- Browse files in grid or list view</li>
@@ -688,7 +688,7 @@ function App() {
                   <li>- Open Quick Look with the Space key</li>
                 </ul>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
                 <h3 className="mb-1 font-medium text-white">Disk visualization</h3>
                 <ul className="space-y-1 text-white/70">
                   <li>- Right panel shows folder size breakdown</li>
@@ -699,14 +699,14 @@ function App() {
               </div>
             </div>
 
-            <div className="mt-3 rounded-xl border border-cyan-300/20 bg-cyan-500/10 p-3 text-xs text-cyan-100/90">
+            <div className="mt-3 rounded-2xl border border-cyan-300/20 bg-cyan-500/10 p-3 text-xs text-cyan-100/90">
               Built for Operating Systems concepts: process separation (main/renderer), IPC communication, and worker-thread scanning for responsiveness.
             </div>
             <div className="mt-4 flex justify-end">
               <button
                 type="button"
                 onClick={startTour}
-                className="rounded-xl border border-cyan-300/40 bg-cyan-500/20 px-3 py-1.5 text-sm font-medium text-cyan-100 transition hover:bg-cyan-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                className="rounded-2xl border border-cyan-300/40 bg-cyan-500/20 px-3 py-1.5 text-sm font-medium text-cyan-100 transition duration-200 hover:bg-cyan-500/30 hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
               >
                 Start guided walkthrough
               </button>

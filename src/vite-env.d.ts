@@ -19,6 +19,7 @@ export interface TrashItem {
   trashedAt: number;
   size: number;
   isDirectory: boolean;
+  source?: "app" | "system";
 }
 
 export type { DirEntry };

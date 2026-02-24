@@ -332,7 +332,7 @@ export function ExplorerView({
 
   if (loading) {
     return (
-      <div className="flex h-full min-h-[320px] items-center justify-center rounded-2xl border border-border-subtle bg-secondary/80 backdrop-blur-glass">
+      <div className="glass-surface flex h-full min-h-[320px] items-center justify-center rounded-3xl border border-border-subtle backdrop-blur-glass">
         <p className="text-sm text-white/60">Loading…</p>
       </div>
     );
@@ -347,7 +347,7 @@ export function ExplorerView({
   };
 
   const renderGrid = () => (
-    <div data-tour="explorer-content" className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div data-tour="explorer-content" className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {sorted.map((entry) => {
         const isSelected = selectedEntry?.path === entry.path;
         const Icon = entry.isDirectory ? Folder : getFileIcon(entry.name);
@@ -367,10 +367,10 @@ export function ExplorerView({
                 open: true,
               });
             }}
-            className={`flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition [-webkit-app-region:no-drag] border-border-subtle ${entry.isDirectory
-              ? "bg-secondary/80 backdrop-blur-glass hover:bg-white/5"
-              : "bg-secondary/60 backdrop-blur-glass hover:bg-white/5"
-              } ${isSelected ? "ring-2 ring-blue-500/50 shadow-sm" : ""}`}
+            className={`glass-hover flex flex-col items-center gap-2 rounded-3xl border p-4 text-center transition duration-200 [-webkit-app-region:no-drag] border-border-subtle ${entry.isDirectory
+              ? "bg-secondary/80 backdrop-blur-glass hover:bg-white/7"
+              : "bg-secondary/60 backdrop-blur-glass hover:bg-white/7"
+              } ${isSelected ? "ring-2 ring-blue-500/50 shadow-[0_10px_24px_rgba(59,130,246,0.18)]" : ""}`}
           >
             {previewSrc ? (
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-black/20">
@@ -413,7 +413,7 @@ export function ExplorerView({
   );
 
   const renderList = () => (
-    <div data-tour="explorer-content" className="overflow-auto rounded-2xl border border-border-subtle bg-secondary/80 backdrop-blur-glass">
+    <div data-tour="explorer-content" className="glass-surface overflow-auto rounded-3xl border border-border-subtle bg-secondary/80 backdrop-blur-glass">
       <table className="min-w-full text-left text-xs text-white/80">
         <thead className="bg-secondary/80">
           <tr>
@@ -535,12 +535,12 @@ export function ExplorerView({
         contextMenu.open && setContextMenu((s) => ({ ...s, open: false }))
       }
     >
-      <div data-tour="explorer-toolbar" className="flex items-center justify-between text-xs text-white/70">
+      <div data-tour="explorer-toolbar" className="glass-surface flex items-center justify-between rounded-2xl px-3 py-2 text-xs text-white/70">
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => setViewMode("grid")}
-            className={`flex items-center gap-1 rounded-xl px-2 py-1 [-webkit-app-region:no-drag] ${viewMode === "grid"
+            className={`flex items-center gap-1 rounded-2xl px-2.5 py-1.5 transition duration-200 [-webkit-app-region:no-drag] ${viewMode === "grid"
               ? "bg-white/15 text-white"
               : "bg-secondary/70 text-white/70 hover:bg-white/5"
               }`}
@@ -551,7 +551,7 @@ export function ExplorerView({
           <button
             type="button"
             onClick={() => setViewMode("list")}
-            className={`flex items-center gap-1 rounded-xl px-2 py-1 [-webkit-app-region:no-drag] ${viewMode === "list"
+            className={`flex items-center gap-1 rounded-2xl px-2.5 py-1.5 transition duration-200 [-webkit-app-region:no-drag] ${viewMode === "list"
               ? "bg-white/15 text-white"
               : "bg-secondary/70 text-white/70 hover:bg-white/5"
               }`}
@@ -572,7 +572,7 @@ export function ExplorerView({
                 e.target.value as "name-asc" | "date-desc" | "size-desc"
               )
             }
-            className="rounded-xl border border-border-subtle bg-secondary/80 px-2 py-1 text-xs text-white/80 focus:border-white/30 focus:outline-none [-webkit-app-region:no-drag]"
+            className="rounded-2xl border border-border-subtle bg-secondary/80 px-2.5 py-1.5 text-xs text-white/80 focus:border-white/30 focus:outline-none [-webkit-app-region:no-drag]"
           >
             <option value="name-asc">Name (A–Z)</option>
             <option value="date-desc">Date Modified (Newest)</option>
@@ -581,7 +581,7 @@ export function ExplorerView({
         </div>
       </div>
       {(noEntriesInFolder || noSearchResults) && (
-        <div className="flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-border-subtle bg-secondary/70 px-6 text-center backdrop-blur-glass">
+        <div className="glass-surface flex min-h-[280px] flex-col items-center justify-center rounded-3xl border border-border-subtle bg-secondary/70 px-6 text-center backdrop-blur-glass">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5">
             <SearchX className="h-6 w-6 text-white/60" />
           </div>

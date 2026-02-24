@@ -85,8 +85,8 @@ function SidebarFavoriteRow({ item }: { item: SidebarFavorite }) {
       onClick={() => navigateTo(item.path)}
       onContextMenu={handleContextMenu}
       className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs [-webkit-app-region:no-drag] ${isActive
-          ? "rounded-xl bg-blue-500/80 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.4)]"
-          : "rounded-xl text-white/80 hover:bg-white/5"
+          ? "rounded-2xl bg-blue-500/80 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.4),0_8px_18px_rgba(59,130,246,0.25)]"
+          : "rounded-2xl text-white/80 hover:bg-white/8"
         } ${isDragging ? "opacity-80" : ""}`}
       style={style}
       {...attributes}
@@ -153,7 +153,7 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
     >
       <div data-tour="sidebar-root" className="flex flex-col gap-3">
         <div data-tour="sidebar-favorites">
-          <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
+          <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
             <span>Favorites</span>
             <Star className="h-3 w-3 text-white/40" />
           </div>
@@ -161,7 +161,7 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
             items={sidebarFavorites.map((f) => f.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="flex flex-col gap-0.5">
+            <div className="glass-surface rounded-2xl p-1.5 flex flex-col gap-1">
               {sidebarFavorites.map((item) => (
                 <SidebarFavoriteRow key={item.id} item={item} />
               ))}
@@ -175,11 +175,11 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
         </div>
 
         <div data-tour="sidebar-locations">
-          <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
+          <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
             <span>Locations</span>
             <HardDrive className="h-3 w-3 text-white/40" />
           </div>
-          <div className="flex flex-col gap-0.5">
+          <div className="glass-surface rounded-2xl p-1.5 flex flex-col gap-1">
             {favorites.map((item) => {
               const isActive = !activeBin && currentPath === item.path;
               const Icon = FAVORITE_ICONS[item.name] ?? Folder;
@@ -189,8 +189,8 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
                   type="button"
                   onClick={() => handleLocationClick(item.path)}
                   className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs [-webkit-app-region:no-drag] ${isActive
-                      ? "rounded-xl bg-blue-500/80 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.4)]"
-                      : "rounded-xl text-white/80 hover:bg-white/5"
+                      ? "rounded-2xl bg-blue-500/80 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.4),0_8px_18px_rgba(59,130,246,0.25)]"
+                      : "rounded-2xl text-white/80 hover:bg-white/8"
                     }`}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -203,18 +203,18 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
 
         {/* Bin */}
         <div>
-          <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
+          <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
             <span>Bin</span>
             <Trash2 className="h-3 w-3 text-white/40" />
           </div>
-          <div className="flex flex-col gap-0.5">
+          <div className="glass-surface rounded-2xl p-1.5 flex flex-col gap-1">
             <button
               data-tour="sidebar-bin"
               type="button"
               onClick={onBinClick}
               className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs [-webkit-app-region:no-drag] ${activeBin
-                  ? "rounded-xl bg-red-500/60 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.3)]"
-                  : "rounded-xl text-white/80 hover:bg-white/5"
+                  ? "rounded-2xl bg-red-500/60 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.3),0_8px_18px_rgba(239,68,68,0.2)]"
+                  : "rounded-2xl text-white/80 hover:bg-white/8"
                 }`}
             >
               <Trash2 className="h-3.5 w-3.5 shrink-0" />

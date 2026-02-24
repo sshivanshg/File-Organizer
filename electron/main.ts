@@ -28,6 +28,18 @@ interface TrashManifestEntry {
   isDirectory: boolean;
 }
 
+type TrashItemSource = "app" | "system";
+
+interface TrashListItem {
+  id: string;
+  name: string;
+  originalPath: string;
+  trashedAt: number;
+  size: number;
+  isDirectory: boolean;
+  source: TrashItemSource;
+}
+
 const TRASH_DIR = path.join(app.getPath("home"), ".nexus-trash");
 const TRASH_FILES_DIR = path.join(TRASH_DIR, "files");
 const MANIFEST_PATH = path.join(TRASH_DIR, "manifest.json");
@@ -49,6 +61,64 @@ function readManifest(): TrashManifestEntry[] {
 function writeManifest(entries: TrashManifestEntry[]): void {
   ensureTrashDirs();
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(entries, null, 2), "utf8");
+}
+
+function getSystemTrashDir(): string | null {
+  if (process.platform === "darwin") return path.join(app.getPath("home"), ".Trash");
+  return null;
+}
+
+function encodeSystemTrashId(absolutePath: string): string {
+  return `sys:${encodeURIComponent(absolutePath)}`;
+}
+
+function decodeSystemTrashId(id: string): string | null {
+  if (!id.startsWith("sys:")) return null;
+  try {
+    return decodeURIComponent(id.slice(4));
+  } catch {
+    return null;
+  }
+}
+
+function isPathInside(parentDir: string, targetPath: string): boolean {
+  const parent = path.resolve(parentDir);
+  const target = path.resolve(targetPath);
+  return target === parent || target.startsWith(parent + path.sep);
+}
+
+async function listSystemTrashItems(): Promise<TrashListItem[]> {
+  const systemTrashDir = getSystemTrashDir();
+  if (!systemTrashDir) return [];
+
+  let entries: fs.Dirent[];
+  try {
+    entries = await fs.promises.readdir(systemTrashDir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const items: TrashListItem[] = [];
+  for (const entry of entries) {
+    // Finder metadata file, not a real trash item.
+    if (entry.name === ".DS_Store") continue;
+    const fullPath = path.join(systemTrashDir, entry.name);
+    try {
+      const stat = await fs.promises.stat(fullPath);
+      items.push({
+        id: encodeSystemTrashId(fullPath),
+        name: entry.name,
+        originalPath: "System Trash (macOS)",
+        trashedAt: stat.mtimeMs || Date.now(),
+        size: stat.size,
+        isDirectory: stat.isDirectory(),
+        source: "system",
+      });
+    } catch {
+      // Skip entries we cannot stat.
+    }
+  }
+  return items;
 }
 
 // MUST be done before app is ready
@@ -513,19 +583,26 @@ function registerIpcHandlers(): void {
   /** List all items currently in the trash. */
   ipcMain.handle("app:listTrashItems", async () => {
     const manifest = readManifest();
-    return manifest.map(({ id, name, originalPath, trashedAt, size, isDirectory }) => ({
-      id,
-      name,
-      originalPath,
-      trashedAt,
-      size,
-      isDirectory,
-    }));
+    const appItems: TrashListItem[] = manifest.map(
+      ({ id, name, originalPath, trashedAt, size, isDirectory }) => ({
+        id,
+        name,
+        originalPath,
+        trashedAt,
+        size,
+        isDirectory,
+        source: "app",
+      })
+    );
+    const systemItems = await listSystemTrashItems();
+    return [...appItems, ...systemItems].sort((a, b) => b.trashedAt - a.trashedAt);
   });
 
   /** Restore a single item from trash to its original location. */
   ipcMain.handle("app:restoreFromTrash", async (_event, id: string) => {
     if (typeof id !== "string" || !id.trim()) return false;
+    // Restoring from system trash is not supported by this custom bin model.
+    if (id.startsWith("sys:")) return false;
     try {
       const manifest = readManifest();
       const idx = manifest.findIndex((e) => e.id === id);
@@ -550,6 +627,14 @@ function registerIpcHandlers(): void {
   ipcMain.handle("app:permanentlyDelete", async (_event, id: string) => {
     if (typeof id !== "string" || !id.trim()) return false;
     try {
+      if (id.startsWith("sys:")) {
+        const systemTrashDir = getSystemTrashDir();
+        const decodedPath = decodeSystemTrashId(id);
+        if (!systemTrashDir || !decodedPath) return false;
+        if (!isPathInside(systemTrashDir, decodedPath)) return false;
+        await fs.promises.rm(decodedPath, { recursive: true, force: true });
+        return true;
+      }
       const manifest = readManifest();
       const idx = manifest.findIndex((e) => e.id === id);
       if (idx === -1) return false;
@@ -573,6 +658,13 @@ function registerIpcHandlers(): void {
         await fs.promises.rm(itemPath, { recursive: true, force: true }).catch(() => { });
       }
       writeManifest([]);
+
+      const systemItems = await listSystemTrashItems();
+      for (const item of systemItems) {
+        const decodedPath = decodeSystemTrashId(item.id);
+        if (!decodedPath) continue;
+        await fs.promises.rm(decodedPath, { recursive: true, force: true }).catch(() => { });
+      }
       return true;
     } catch {
       return false;

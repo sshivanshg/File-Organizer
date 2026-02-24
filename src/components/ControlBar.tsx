@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, ChevronUp, Gauge, Search, X } from "lucide-r
 import { useFileStore } from "../stores/useFileStore";
 
 const GLASS_BTN =
-  "rounded-xl border border-border-subtle bg-secondary/80 p-2 text-white/90 backdrop-blur-glass transition hover:bg-white/10 hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 disabled:opacity-40 disabled:pointer-events-none [-webkit-app-region:no-drag]";
+  "rounded-2xl border border-border-subtle bg-secondary/80 p-2 text-white/90 backdrop-blur-glass transition duration-200 hover:bg-white/10 hover:border-white/20 hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 disabled:opacity-40 disabled:pointer-events-none [-webkit-app-region:no-drag]";
 
 interface ControlBarProps {
   searchQuery: string;
@@ -65,7 +65,7 @@ export function ControlBar({
   return (
     <div
       data-tour="control-bar"
-      className="flex flex-wrap items-center gap-3 rounded-2xl border border-border-subtle bg-secondary/80 px-4 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.22)] backdrop-blur-glass"
+      className="glass-surface flex flex-wrap items-center gap-3 rounded-3xl border border-border-subtle px-4 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.22)] backdrop-blur-glass"
     >
       <div className="flex items-center gap-1">
         <button
@@ -97,14 +97,14 @@ export function ControlBar({
         </button>
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden rounded-xl border border-white/5 bg-black/10 px-2 py-1">
+      <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden rounded-2xl border border-white/10 bg-black/15 px-2.5 py-1.5">
         {segments.map((seg, i) => (
           <span key={seg.path} className="flex items-center gap-1.5 overflow-hidden">
             {i > 0 && <span className="text-white/40">›</span>}
             <button
               type="button"
               onClick={() => navigateTo(seg.path)}
-              className="truncate rounded-lg px-1.5 py-0.5 text-left text-xs font-medium text-white/90 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 [-webkit-app-region:no-drag]"
+              className="truncate rounded-xl px-1.5 py-0.5 text-left text-xs font-medium text-white/90 transition duration-200 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 [-webkit-app-region:no-drag]"
             >
               {seg.label}
             </button>
@@ -136,7 +136,7 @@ export function ControlBar({
       <button
         type="button"
         onClick={onTogglePerformanceMode}
-        className={`inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-xs font-medium transition [-webkit-app-region:no-drag] ${
+        className={`inline-flex items-center gap-1.5 rounded-2xl border px-2.5 py-1.5 text-xs font-medium transition duration-200 hover:-translate-y-[1px] [-webkit-app-region:no-drag] ${
           performanceMode
             ? "border-cyan-300/40 bg-cyan-500/20 text-cyan-100 hover:bg-cyan-500/30"
             : "border-border-subtle bg-secondary/70 text-white/80 hover:bg-white/10"

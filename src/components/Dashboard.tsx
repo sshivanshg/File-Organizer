@@ -19,7 +19,7 @@ import type { DiskVizNode } from "../types/diskViz";
 import { DiskVisualizer } from "./DiskVisualizer";
 
 const GLASS_CLASS =
-  "rounded-2xl border border-border-subtle bg-secondary/80 backdrop-blur-glass";
+  "glass-surface rounded-3xl border border-border-subtle bg-secondary/80 backdrop-blur-glass";
 
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Image: ImageIcon,
@@ -139,7 +139,7 @@ export function Dashboard({
               key={category}
               onClick={() => setSelectedCategory(isSelected ? null : category)}
               type="button"
-              className={`flex items-center gap-4 p-5 text-left transition-colors [-webkit-app-region:no-drag] ${GLASS_CLASS} hover:bg-white/5 ${isSelected ? 'ring-2 ring-blue-500/50' : ''}`}
+              className={`glass-hover flex items-center gap-4 p-5 text-left transition duration-200 [-webkit-app-region:no-drag] ${GLASS_CLASS} hover:bg-white/7 ${isSelected ? 'ring-2 ring-blue-500/50 shadow-[0_10px_24px_rgba(59,130,246,0.18)]' : ''}`}
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/5 border border-border-subtle">
                 <Icon className="h-5 w-5 text-white/80" />

@@ -46,6 +46,8 @@ const electronAPI = {
     ipcRenderer.invoke("app:emptyTrash"),
   renameFile: (oldPath: string, newPath: string): Promise<boolean> =>
     ipcRenderer.invoke("app:renameFile", oldPath, newPath),
+  createFolder: (parentPath: string, folderName: string): Promise<boolean> =>
+    ipcRenderer.invoke("app:createFolder", parentPath, folderName),
   watchDirectory: (dirPath: string) =>
     ipcRenderer.send("app:watchDirectory", dirPath),
   unwatchDirectory: () => ipcRenderer.send("app:unwatchDirectory"),

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -9,6 +10,8 @@ interface ConfirmDialogProps {
   itemName?: string;
   isDestructive?: boolean;
   isLoading?: boolean;
+  confirmLabel?: string;
+  cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
   children?: ReactNode;
@@ -21,14 +24,18 @@ export function ConfirmDialog({
   itemName,
   isDestructive = false,
   isLoading = false,
+  confirmLabel,
+  cancelLabel = "Cancel",
   onConfirm,
   onCancel,
   children,
 }: ConfirmDialogProps) {
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -95,7 +102,7 @@ export function ConfirmDialog({
                 disabled={isLoading}
                 className="flex-1 rounded-xl border border-border-subtle bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10 disabled:opacity-50 [-webkit-app-region:no-drag]"
               >
-                Cancel
+                {cancelLabel}
               </button>
               <button
                 type="button"
@@ -112,6 +119,8 @@ export function ConfirmDialog({
                     <div className="h-3 w-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                     Processing...
                   </span>
+                ) : confirmLabel ? (
+                  confirmLabel
                 ) : isDestructive ? (
                   "Delete"
                 ) : (
@@ -123,5 +132,7 @@ export function ConfirmDialog({
         </div>
       )}
     </AnimatePresence>
+    ,
+    document.body
   );
 }

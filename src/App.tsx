@@ -105,9 +105,9 @@ function App() {
         getTarget: () => byTour("explorer-content"),
       },
       {
-        title: "Quick Look preview",
+        title: "Keyboard shortcuts",
         description:
-          "Select a file and press Space to open Quick Look. Great for fast preview of media and code.",
+          "Use Arrow Up/Down or Space to move selection, Enter to open selected item, Command + N to create a folder, and Command + Delete to move selected item to Bin.",
         getTarget: () => byTour("explorer-content"),
       },
       {
@@ -440,7 +440,12 @@ function App() {
                   <li>- Browse files in grid or list view</li>
                   <li>- Search and sort current folder items</li>
                   <li>- Add frequent folders to Favorites</li>
-                  <li>- Open Quick Look with the Space key</li>
+                  <li>- Press Space to select the next file</li>
+                  <li>- Press Shift + Space to select the previous file</li>
+                  <li>- Press Arrow Up/Down to navigate selection</li>
+                  <li>- Press Enter to open selected item</li>
+                  <li>- Press Command + N to create a new folder</li>
+                  <li>- Press Command + Delete to move selected item to Bin</li>
                 </ul>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-3">

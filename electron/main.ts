@@ -701,6 +701,32 @@ function registerIpcHandlers(): void {
     }
   });
 
+  ipcMain.handle(
+    "app:createFolder",
+    async (_event, parentPath: string, folderName: string) => {
+      if (
+        typeof parentPath !== "string" ||
+        !parentPath.trim() ||
+        typeof folderName !== "string"
+      ) {
+        return false;
+      }
+
+      const trimmedName = folderName.trim();
+      if (!trimmedName || trimmedName.includes("/") || trimmedName.includes("\\")) {
+        return false;
+      }
+
+      try {
+        const targetPath = path.join(path.resolve(parentPath), trimmedName);
+        await fs.promises.mkdir(targetPath, { recursive: false });
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  );
+
   ipcMain.on("app:watchDirectory", (event, dirPath: string) => {
     if (currentWatcher) {
       currentWatcher.close();

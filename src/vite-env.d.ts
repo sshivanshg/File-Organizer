@@ -49,6 +49,7 @@ declare global {
       permanentlyDelete: (id: string) => Promise<boolean>;
       emptyTrash: () => Promise<boolean>;
       renameFile: (oldPath: string, newPath: string) => Promise<boolean>;
+      createFolder: (parentPath: string, folderName: string) => Promise<boolean>;
       watchDirectory: (dirPath: string) => void;
       unwatchDirectory: () => void;
       onDirectoryChanged: (callback: (dirPath: string) => void) => () => void;

@@ -139,7 +139,13 @@ export function ExplorerView({
 
   const handleDelete = async (entry: DirEntry) => {
     const ok = await window.electron?.deleteFile?.(entry.path);
-    if (!ok) alert("Failed to move item to trash.");
+    if (!ok) {
+      alert("Failed to move item to trash.");
+      return;
+    }
+    if (selectedEntry?.path === entry.path) {
+      setSelectedEntry(null);
+    }
   };
 
   const handleRenameSubmit = async () => {
@@ -209,6 +215,24 @@ export function ExplorerView({
   }, [sorted]);
 
   useEffect(() => {
+    const moveSelectionTo = (index: number) => {
+      if (sorted.length === 0) return;
+      const safeIndex = Math.max(0, Math.min(index, sorted.length - 1));
+      setSelectedEntry(sorted[safeIndex]);
+    };
+
+    const moveSelectionBy = (offset: number) => {
+      if (sorted.length === 0) return;
+      const currentIndex = selectedEntry
+        ? sorted.findIndex((item) => item.path === selectedEntry.path)
+        : -1;
+      const nextIndex =
+        currentIndex === -1
+          ? 0
+          : (currentIndex + offset + sorted.length) % sorted.length;
+      setSelectedEntry(sorted[nextIndex]);
+    };
+
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (
@@ -219,12 +243,63 @@ export function ExplorerView({
       ) {
         return;
       }
-      if (e.code === "Space") {
-        if (selectedEntry && !selectedEntry.isDirectory) {
-          e.preventDefault();
-          setQuickLookOpen((open) => !open);
+
+      const baseModifiers = !e.metaKey && !e.ctrlKey && !e.altKey;
+
+      if (
+        e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.shiftKey &&
+        (e.key === "Backspace" || e.key === "Delete") &&
+        selectedEntry
+      ) {
+        e.preventDefault();
+        void handleDelete(selectedEntry);
+        return;
+      }
+
+      if (baseModifiers && e.key === "Enter" && selectedEntry) {
+        e.preventDefault();
+        if (selectedEntry.isDirectory) {
+          navigateTo(selectedEntry.path);
+        } else {
+          window.electron?.openPath(selectedEntry.path);
         }
-      } else if (e.code === "Escape") {
+        return;
+      }
+
+      if (baseModifiers && e.key === "ArrowDown") {
+        e.preventDefault();
+        moveSelectionBy(1);
+        return;
+      }
+
+      if (baseModifiers && e.key === "ArrowUp") {
+        e.preventDefault();
+        moveSelectionBy(-1);
+        return;
+      }
+
+      if (baseModifiers && e.key === "Home") {
+        e.preventDefault();
+        moveSelectionTo(0);
+        return;
+      }
+
+      if (baseModifiers && e.key === "End") {
+        e.preventDefault();
+        moveSelectionTo(sorted.length - 1);
+        return;
+      }
+
+      if (baseModifiers && e.code === "Space") {
+        e.preventDefault();
+        moveSelectionBy(e.shiftKey ? -1 : 1);
+        return;
+      }
+
+      if (e.code === "Escape") {
         if (quickLookOpen) {
           e.preventDefault();
           setQuickLookOpen(false);
@@ -233,7 +308,7 @@ export function ExplorerView({
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [selectedEntry, quickLookOpen]);
+  }, [selectedEntry, quickLookOpen, sorted, navigateTo]);
 
   const handleDoubleClick = (entry: DirEntry) => {
     if (entry.isDirectory) {

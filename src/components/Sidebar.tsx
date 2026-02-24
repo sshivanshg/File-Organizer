@@ -9,6 +9,7 @@ import {
   Book,
   HardDrive,
   Trash2,
+  FolderPlus,
 } from "lucide-react";
 import {
   useFileStore,
@@ -28,7 +29,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const FAVORITE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
@@ -117,12 +119,25 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
   } = useFileStore();
 
   const [binCount, setBinCount] = useState(0);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createFolderLoading, setCreateFolderLoading] = useState(false);
+  const [folderName, setFolderName] = useState("New Folder");
+  const folderInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     window.electron?.listTrashItems?.().then((items) => {
       setBinCount(items?.length ?? 0);
     });
   }, [activeBin]);
+
+  useEffect(() => {
+    if (!createDialogOpen) return;
+    const timer = window.setTimeout(() => {
+      folderInputRef.current?.focus();
+      folderInputRef.current?.select();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [createDialogOpen]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -145,13 +160,66 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
     navigateTo(itemPath);
   };
 
+  const beginCreateFolder = () => {
+    if (!currentPath) return;
+    setFolderName("New Folder");
+    setCreateDialogOpen(true);
+  };
+
+  const cancelCreateFolder = () => {
+    if (createFolderLoading) return;
+    setCreateDialogOpen(false);
+    setFolderName("New Folder");
+  };
+
+  const submitCreateFolder = async () => {
+    if (!currentPath || !window.electron?.createFolder || createFolderLoading) return;
+    const trimmedName = folderName.trim();
+    if (!trimmedName) {
+      alert("Folder name cannot be empty.");
+      return;
+    }
+
+    setCreateFolderLoading(true);
+    const ok = await window.electron.createFolder(currentPath, trimmedName);
+    setCreateFolderLoading(false);
+    if (!ok) {
+      alert("Failed to create folder. It may already exist or use invalid characters.");
+      return;
+    }
+    setCreateDialogOpen(false);
+    setFolderName("New Folder");
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (createDialogOpen) return;
+      if (e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "n") {
+        e.preventDefault();
+        beginCreateFolder();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [currentPath, createDialogOpen]);
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div data-tour="sidebar-root" className="flex flex-col gap-3">
+      <div data-tour="sidebar-root" className="flex h-full flex-col gap-3">
         <div data-tour="sidebar-favorites">
           <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
             <span>Favorites</span>
@@ -227,6 +295,47 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
             </button>
           </div>
         </div>
+
+        <div className="mt-auto pt-1">
+          <button
+            type="button"
+            onClick={beginCreateFolder}
+            className="glass-surface flex w-full items-center gap-2 rounded-2xl px-2.5 py-1.5 text-left text-xs text-white/80 transition duration-200 hover:bg-white/8 [-webkit-app-region:no-drag]"
+          >
+            <FolderPlus className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">New Folder</span>
+          </button>
+        </div>
+
+        <ConfirmDialog
+          open={createDialogOpen}
+          title="Creating a new folder"
+          message="Name the folder, then press Enter or click OK."
+          isLoading={createFolderLoading}
+          confirmLabel="OK"
+          onConfirm={() => {
+            void submitCreateFolder();
+          }}
+          onCancel={cancelCreateFolder}
+        >
+          <input
+            ref={folderInputRef}
+            value={folderName}
+            onChange={(e) => setFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                void submitCreateFolder();
+              }
+              if (e.key === "Escape") {
+                e.preventDefault();
+                cancelCreateFolder();
+              }
+            }}
+            placeholder="Folder name"
+            className="w-full rounded-xl border border-white/15 bg-black/25 px-3 py-2 text-sm text-white outline-none focus:border-cyan-300/60 focus:ring-2 focus:ring-cyan-400/30"
+          />
+        </ConfirmDialog>
       </div>
     </DndContext>
   );

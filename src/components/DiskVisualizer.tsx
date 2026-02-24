@@ -137,7 +137,7 @@ export function DiskVisualizer({ data, isLoading, onDeepScan }: DiskVisualizerPr
   };
 
   return (
-    <div className="flex h-[400px] w-full flex-col gap-2">
+    <div data-tour="disk-visualizer" className="flex h-[400px] w-full flex-col gap-2">
       <div className="relative flex-1">
         <SunburstAny
         data={processed}

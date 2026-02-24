@@ -116,11 +116,11 @@ export function Dashboard({
   );
 
   return (
-    <div>
+    <div data-tour="dashboard-root">
       <div className="mb-2 truncate text-xs text-white/50" title={directoryPath}>
         {directoryPath}
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div data-tour="dashboard-categories" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div
           className={`flex flex-col justify-between p-6 sm:col-span-2 lg:col-span-1 ${GLASS_CLASS}`}
         >
@@ -156,7 +156,7 @@ export function Dashboard({
       </div>
 
       {selectedCategory && result && (
-        <div className="mt-6">
+        <div data-tour="dashboard-category-files" className="mt-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white/70">
               Files in <span className="text-white">{selectedCategory}</span>

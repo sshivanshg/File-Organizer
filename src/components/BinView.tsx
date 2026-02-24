@@ -120,9 +120,9 @@ export function BinView() {
   const emptyMsg = "This will permanently delete all " + items.length + " item" + (items.length !== 1 ? "s" : "") + " in the bin. This cannot be undone.";
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-auto">
+    <div data-tour="bin-root" className="flex h-full flex-col gap-4 overflow-auto">
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 pt-6">
+      <div data-tour="bin-header" className="flex items-center gap-3 px-6 pt-6">
         <Trash2 className="h-5 w-5 text-red-400/70" />
         <h1 className="text-xl font-semibold text-white">Bin</h1>
         <span className="text-xs text-white/50 ml-1">

@@ -151,8 +151,8 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-col gap-3">
-        <div>
+      <div data-tour="sidebar-root" className="flex flex-col gap-3">
+        <div data-tour="sidebar-favorites">
           <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
             <span>Favorites</span>
             <Star className="h-3 w-3 text-white/40" />
@@ -174,7 +174,7 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
           </SortableContext>
         </div>
 
-        <div>
+        <div data-tour="sidebar-locations">
           <div className="mb-1 flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/50">
             <span>Locations</span>
             <HardDrive className="h-3 w-3 text-white/40" />
@@ -209,6 +209,7 @@ export function Sidebar({ activeBin, onBinClick }: SidebarProps) {
           </div>
           <div className="flex flex-col gap-0.5">
             <button
+              data-tour="sidebar-bin"
               type="button"
               onClick={onBinClick}
               className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs [-webkit-app-region:no-drag] ${activeBin

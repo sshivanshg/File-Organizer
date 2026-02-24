@@ -278,7 +278,7 @@ export function ExplorerView({ searchQuery }: ExplorerViewProps) {
   };
 
   const renderGrid = () => (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+    <div data-tour="explorer-content" className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {sorted.map((entry) => {
         const isSelected = selectedEntry?.path === entry.path;
         const Icon = entry.isDirectory ? Folder : getFileIcon(entry.name);
@@ -344,7 +344,7 @@ export function ExplorerView({ searchQuery }: ExplorerViewProps) {
   );
 
   const renderList = () => (
-    <div className="overflow-auto rounded-2xl border border-border-subtle bg-secondary/80 backdrop-blur-glass">
+    <div data-tour="explorer-content" className="overflow-auto rounded-2xl border border-border-subtle bg-secondary/80 backdrop-blur-glass">
       <table className="min-w-full text-left text-xs text-white/80">
         <thead className="bg-secondary/80">
           <tr>
@@ -466,7 +466,7 @@ export function ExplorerView({ searchQuery }: ExplorerViewProps) {
         contextMenu.open && setContextMenu((s) => ({ ...s, open: false }))
       }
     >
-      <div className="flex items-center justify-between text-xs text-white/70">
+      <div data-tour="explorer-toolbar" className="flex items-center justify-between text-xs text-white/70">
         <div className="flex items-center gap-1.5">
           <button
             type="button"

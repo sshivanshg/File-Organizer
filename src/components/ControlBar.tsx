@@ -56,7 +56,10 @@ export function ControlBar({ searchQuery, onSearchChange }: ControlBarProps) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border-subtle bg-secondary/80 px-4 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.22)] backdrop-blur-glass">
+    <div
+      data-tour="control-bar"
+      className="flex flex-wrap items-center gap-3 rounded-2xl border border-border-subtle bg-secondary/80 px-4 py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.22)] backdrop-blur-glass"
+    >
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -102,7 +105,7 @@ export function ControlBar({ searchQuery, onSearchChange }: ControlBarProps) {
         ))}
       </div>
 
-      <div className="relative flex items-center">
+      <div data-tour="search-box" className="relative flex items-center">
         <Search className="absolute left-2.5 h-3.5 w-3.5 text-white/50" />
         <input
           type="text"

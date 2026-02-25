@@ -400,43 +400,6 @@ Main process: forwards tree to renderer via IPC
         ▼
 Renderer: DiskVisualizer renders sunburst chart
 ```
-
----
-
-## 10. Potential Viva Questions & Answers
-
-**Q: Why not just use `fs` directly in the frontend?**
-A: That would violate process isolation. In a real OS, user-space programs can't access hardware directly — they go through system calls. Our IPC layer enforces the same boundary. It also prevents malicious code in the renderer from accessing the full file system.
-
-**Q: Why use a worker thread instead of just async functions?**
-A: Node.js async I/O is non-blocking for I/O waits, but the JavaScript callbacks still run on the main thread. With 10,000+ files, the CPU time spent processing results blocks the event loop. A worker thread runs on a separate OS thread, so the main thread stays free for IPC and UI updates.
-
-**Q: How is your trash different from the OS trash?**
-A: Our trash uses a `manifest.json` journal — before moving a file, we record its original path and metadata. This is the same idea as file system journaling (ext4, NTFS). It lets us restore files to their exact original location. We also read the macOS system trash (`~/.Trash`) to show a unified view.
-
-**Q: What happens if the app crashes during a delete?**
-A: The manifest is written *before* the `fs.rename()` call. If the app crashes after writing the manifest but before moving the file, the manifest entry exists but the file is still in place — no data loss. If it crashes after the move, the manifest correctly records where the file went. This is crash consistency through journaling.
-
-**Q: How does file watching work at the kernel level?**
-A: On macOS, `fs.watch()` uses `kqueue` — a kernel event queue. We register a file descriptor for the directory. When any process modifies that directory (create, delete, rename), the kernel places an event in our queue. Our callback fires and we re-scan. This is interrupt-driven, not polling — zero CPU usage while waiting.
-
-**Q: What is context isolation?**
-A: The preload script runs in a special context that can access both Node.js APIs and the web page. But with `contextIsolation: true`, the page JavaScript cannot access the preload's variables directly. `contextBridge` creates a controlled bridge — like a system call table that exposes only specific functions. Even if someone injects malicious JS into the page, they can only call the whitelisted functions.
-
-**Q: How do you handle permission errors?**
-A: Every `fs` operation is wrapped in try/catch. If `EACCES` (permission denied) is returned, we skip that directory and continue. On macOS, if the Home directory itself is inaccessible, we show a permission screen that links to System Settings > Full Disk Access. This is the OS's discretionary access control (DAC) model in action.
-
-**Q: What's the difference between a process and a thread in your app?**
-A: Main process and renderer are separate **processes** — different PIDs, separate memory, communicate via IPC (serialized messages). The worker is a **thread** within the main process — same PID, but separate V8 heap (no shared JS objects), communicates via `postMessage`. The OS schedules both processes and the thread independently across CPU cores.
-
-**Q: How is your custom protocol like a virtual file system?**
-A: The `media://` protocol intercepts URL requests from the renderer, translates them to real file paths, and serves the content. The renderer thinks it's loading from a `media://` namespace — it never sees the real path. This is analogous to Linux's `/proc` or `/sys` — virtual filesystems where the kernel translates path lookups into internal data.
-
-**Q: What would happen without debouncing?**
-A: If the user clicks 10 folders in 1 second, we'd launch 10 parallel scans. Each scan opens hundreds of file descriptors (`readdir` + `stat`). This could hit the OS's per-process file descriptor limit (`ulimit -n`, typically 256-1024). Debouncing ensures only the last navigation triggers a scan — like how disk I/O schedulers merge redundant requests.
-
----
-
 ## Tech Stack
 
 | Layer | Technology |
